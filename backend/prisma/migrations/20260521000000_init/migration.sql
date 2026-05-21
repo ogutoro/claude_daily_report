@@ -1,6 +1,9 @@
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 
+-- Enable pgcrypto for gen_random_uuid() (required for PostgreSQL < 13)
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('sales', 'manager', 'admin');
 
