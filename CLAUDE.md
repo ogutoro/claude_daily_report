@@ -1,5 +1,15 @@
 # 営業日報システム
 
+## 使用技術
+
+- 言語: TypeScript
+- フレームワーク: Next.js(App Router)
+- UIコンポーネント: shadcn/ui + Tailwind CSS
+- APIスキーマ定義: OpenAPI(Zodによる検証)
+- DBスキーマ定義: Prisma.js
+- テスト: Vitest
+- デプロイ: Google Cloud Run
+
 ## 構成
 
 - `frontend/` — React + TypeScript（ESLint: react-hooks, react-refresh）
@@ -25,19 +35,19 @@ npm run lint:fix --workspace=backend
 
 ### 画面設計
 
-@doc/screen_definition.md
+@doc/SCREEN_DESIGN.md
 
 ### API仕様書
 
-@doc/api_specification.md
+@doc/API_SCHEME.md
 
 ### テスト仕様書
 
-@doc/test_specification.md
+@doc/TEST_DEFINITION.md
 
 ### ER図
 
-@doc/er_diagram.md
+@doc/ER_DIAGRAM.md
 
 ## テストコード作成時の厳守事項(絶対に守ってください)
 

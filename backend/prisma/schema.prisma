@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  sales
+  manager
+  admin
+}
+
+enum ReportStatus {
+  draft
+  submitted
+}
+
+enum CommentTarget {
+  problem
+  plan
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model Team {
+  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name String @unique
+
+  users User[]
+
+  @@map("teams")
+}
+
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         Role
+  teamId       String?   @db.Uuid @map("team_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  team         Team?         @relation(fields: [teamId], references: [id])
+  dailyReports DailyReport[]
+  comments     Comment[]
+
+  @@map("users")
+}
+
+model Customer {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyName String    @map("company_name")
+  name        String
+  department  String?
+  phone       String?
+  email       String?
+  address     String?
+  notes       String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  visitRecords VisitRecord[]
+
+  @@map("customers")
+}
+
+model DailyReport {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String       @db.Uuid @map("user_id")
+  reportDate  DateTime     @db.Date @map("report_date")
+  problem     String?
+  plan        String?
+  status      ReportStatus @default(draft)
+  submittedAt DateTime?    @map("submitted_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id])
+  visitRecords VisitRecord[]
+  comments     Comment[]
+
+  @@unique([userId, reportDate])
+  @@map("daily_reports")
+}
+
+model VisitRecord {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dailyReportId String    @db.Uuid @map("daily_report_id")
+  customerId    String    @db.Uuid @map("customer_id")
+  // PostgreSQL の time 型。Prisma では DateTime @db.Time(0) でマッピング
+  visitTime     DateTime? @db.Time(0) @map("visit_time")
+  content       String
+  sortOrder     Int       @map("sort_order")
+
+  dailyReport DailyReport @relation(fields: [dailyReportId], references: [id])
+  customer    Customer    @relation(fields: [customerId], references: [id])
+
+  @@map("visit_records")
+}
+
+model Comment {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dailyReportId String        @db.Uuid @map("daily_report_id")
+  commenterId   String        @db.Uuid @map("commenter_id")
+  target        CommentTarget
+  body          String
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  dailyReport DailyReport @relation(fields: [dailyReportId], references: [id])
+  commenter   User        @relation(fields: [commenterId], references: [id])
+
+  @@map("comments")
+}
