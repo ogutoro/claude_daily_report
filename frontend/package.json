@@ -14,10 +14,20 @@
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.0.0",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
     "@vitejs/plugin-react": "^4.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "typescript-eslint": "^8.0.0",
     "jsdom": "^26.0.0",
+    "typescript": "^6.0.3",
     "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "next": "^16.2.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
   }
 }

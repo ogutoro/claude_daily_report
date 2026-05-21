@@ -9,9 +9,11 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test:run --workspaces --if-present",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
     "prettier": "^3.0.0"
   }
 }
