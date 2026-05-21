@@ -29,6 +29,21 @@ cd backend && npm run lint
 # 自動修正
 npm run lint:fix --workspace=frontend
 npm run lint:fix --workspace=backend
+
+# テスト（全体・CI用）
+npm test
+
+# テスト（watch モード）
+cd frontend && npm test
+cd backend && npm test
+
+# カバレッジ
+npm run coverage --workspace=frontend
+npm run coverage --workspace=backend
+
+# フォーマット
+npm run format
+npm run format:check
 ```
 
 ## ドキュメント
