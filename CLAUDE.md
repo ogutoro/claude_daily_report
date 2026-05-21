@@ -1,5 +1,26 @@
 # 営業日報システム
 
+## 構成
+
+- `frontend/` — React + TypeScript（ESLint: react-hooks, react-refresh）
+- `backend/` — Node.js + TypeScript（ESLint: node globals）
+- npm workspaces でモノレポ管理
+
+## コマンド
+
+```bash
+# Lint（全体）
+npm run lint
+
+# Lint（個別）
+cd frontend && npm run lint
+cd backend && npm run lint
+
+# 自動修正
+npm run lint:fix --workspace=frontend
+npm run lint:fix --workspace=backend
+```
+
 ## ドキュメント
 
 ### 画面設計

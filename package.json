@@ -1,0 +1,11 @@
+{
+  "name": "claude-daily-report",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "lint": "npm run lint --workspaces --if-present"
+  }
+}
