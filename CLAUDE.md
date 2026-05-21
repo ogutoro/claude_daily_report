@@ -46,6 +46,102 @@ npm run format
 npm run format:check
 ```
 
+## DB セットアップ
+
+### 初回セットアップ
+
+```bash
+# 1. 環境変数ファイルを作成
+cp backend/.env.example backend/.env
+# backend/.env の DATABASE_URL を実際の接続先に編集する
+
+# 2. マイグレーション適用（ローカル開発）
+cd backend && npm run db:migrate:dev
+
+# 3. Prismaクライアント生成
+cd backend && npm run db:generate
+```
+
+### DB スクリプト一覧（backend/）
+
+| コマンド                 | 説明                                                                     |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `npm run db:migrate:dev` | 開発環境でマイグレーションを適用（`prisma migrate dev`）                 |
+| `npm run db:migrate`     | 本番/ステージング環境でマイグレーションを適用（`prisma migrate deploy`） |
+| `npm run db:generate`    | Prismaクライアントを再生成                                               |
+| `npm run db:reset`       | DBをリセットして全マイグレーションを再適用（`--force`）                  |
+
+### 注意事項
+
+- `backend/.env` はGit管理外（`.gitignore`対象）
+- 接続URL形式: `postgresql://<user>:<password>@<host>:<port>/<database>`
+- Prisma 7以降、接続URLは `backend/prisma.config.ts` で管理（`schema.prisma` には記載しない）
+
+## デプロイ
+
+### GCP 設定値
+
+| 項目                              | 値                                                                     |
+| --------------------------------- | ---------------------------------------------------------------------- |
+| Project ID                        | `claude-test-app-20260521`                                             |
+| リージョン                        | `asia-northeast1`                                                      |
+| Artifact Registry                 | `asia-northeast1-docker.pkg.dev/claude-test-app-20260521/daily-report` |
+| フロントエンド Cloud Run サービス | `daily-report-frontend`                                                |
+| バックエンド Cloud Run サービス   | `daily-report-backend`                                                 |
+
+### 初回セットアップ（一度だけ実行）
+
+```bash
+# Artifact Registry 作成・API 有効化
+make gcp-setup
+
+# Secret Manager にシークレットを登録
+echo -n "postgresql://..." | gcloud secrets create DATABASE_URL \
+  --data-file=- --project=claude-test-app-20260521
+
+echo -n "your-jwt-secret" | gcloud secrets create JWT_SECRET \
+  --data-file=- --project=claude-test-app-20260521
+```
+
+GitHub リポジトリの **Settings → Secrets → Actions** に以下を登録：
+
+| シークレット名 | 内容                                             |
+| -------------- | ------------------------------------------------ |
+| `GCP_SA_KEY`   | サービスアカウントの JSON キー（下記ロール必須） |
+
+サービスアカウントに必要なロール：
+
+- `roles/run.admin`
+- `roles/artifactregistry.writer`
+- `roles/iam.serviceAccountUser`
+- `roles/secretmanager.secretAccessor`
+
+### CI/CD フロー
+
+- **PR / main 以外へのプッシュ** → `.github/workflows/ci.yml` が lint・format・test を実行
+- **main へのプッシュ** → `.github/workflows/deploy.yml` が lint・test → Docker ビルド → Artifact Registry プッシュ → Cloud Run デプロイ を順番に実行
+
+### デプロイコマンド（Makefile）
+
+```bash
+# 全体をビルド → プッシュ → デプロイ（タグは git の短縮 SHA）
+make deploy
+
+# 任意タグでデプロイ
+make deploy TAG=v1.2.0
+
+# フロントエンドのみ
+make deploy-frontend
+
+# バックエンドのみ
+make deploy-backend
+
+# Docker ビルドのみ（プッシュなし・動作確認用）
+make build
+make build-frontend
+make build-backend
+```
+
 ## ドキュメント
 
 ### 画面設計
